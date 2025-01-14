@@ -34,6 +34,11 @@ class DataJoin:
         df_dir = ntm(df_dir)
         df_spe = ntm(df_spe)
 
+        df_hum = normalizeData(df_hum)
+        df_pre = normalizeData(df_pre)
+        df_tem = normalizeData(df_tem)
+        df_spe = normalizeData(df_spe)
+
         wdp = WindDirectionProcess()
         df_dir = wdp.processWindDirection(df_dir)
 
