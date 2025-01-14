@@ -6,7 +6,8 @@ class DescriptionProcess(object):
         pass
 
     def descriptionProcess(self, df):
+        firstColumn = df.iloc[:, 0]
         unique_val = pd.unique(df.iloc[:, 1:].values.ravel())
         value_to_index = {value: idx for idx, value in enumerate(unique_val)}
         df_mapped = df.iloc[:, 1:].map(lambda x: value_to_index[x])
-        return df_mapped
+        return pd.concat([firstColumn, df_mapped], axis=1)
