@@ -10,7 +10,5 @@ class CsvReader:
         return pd.read_csv(path)
 
     def getColumnData(self, data,
-                      column_index):  # give vector of values of choosen column from csv file, in our case 0=x 1=y 2=cls
+                      column_index):  # give vector of values of chosen column from csv file, in our case 0=x 1=y 2=cls
         return data.iloc[:, column_index].values.tolist()
-
-reader = CsvReader()

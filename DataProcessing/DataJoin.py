@@ -4,6 +4,7 @@ import DataProcessing.CsvReader as reader
 import DataProcessing.WindDirectionProcess as wdp
 from DataProcessing.WindDirectionProcess import WindDirectionProcess
 import DataProcessing.NanToMean as ntm
+from DataProcessing.DescriptionProcess import DescriptionProcess
 
 
 class DataJoin:
@@ -23,8 +24,12 @@ class DataJoin:
         df_dir = reader.CsvReader.readCsvData(None, path_dir)
         df_spe = reader.CsvReader.readCsvData(None, path_spe)
 
+        df_wea = DescriptionProcess.descriptionProcess(None, df_wea)
+
         df_dir = ntm.NanToMean.NanToMean(None, df_dir)
         wdp = WindDirectionProcess()
         df_dir = wdp.processWindDirection(df_dir)
+
+
 
         return pd.concat([df_hum , df_pre.iloc[:, 1:], df_tem.iloc[:, 1:], df_wea.iloc[:, 1:], df_dir.iloc[:, 1:], df_spe.iloc[:, 1:]], axis=1)
