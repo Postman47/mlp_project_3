@@ -3,7 +3,10 @@ import pandas as pd
 import DataProcessing.CsvReader as reader
 import DataProcessing.WindDirectionProcess as wdp
 from DataProcessing.WindDirectionProcess import WindDirectionProcess
-import DataProcessing.NanToMean as ntm
+from DataProcessing.NanToMean import nanToMean as ntm
+from DataProcessing.DescriptionProcess import DescriptionProcess
+from DataProcessing.NormalizeData import normalizeData
+from DataProcessing.SortColumns import sortColumns
 
 
 class DataJoin:
@@ -23,8 +26,20 @@ class DataJoin:
         df_dir = reader.CsvReader.readCsvData(None, path_dir)
         df_spe = reader.CsvReader.readCsvData(None, path_spe)
 
-        df_dir = ntm.NanToMean.NanToMean(None, df_dir)
+        df_wea = DescriptionProcess.descriptionProcess(None, df_wea)
+
+        df_hum = ntm(df_hum)
+        df_pre = ntm(df_pre)
+        df_tem = ntm(df_tem)
+        df_dir = ntm(df_dir)
+        df_spe = ntm(df_spe)
+
+        df_hum = normalizeData(df_hum)
+        df_pre = normalizeData(df_pre)
+        df_tem = normalizeData(df_tem)
+        df_spe = normalizeData(df_spe)
+
         wdp = WindDirectionProcess()
         df_dir = wdp.processWindDirection(df_dir)
 
-        return pd.concat([df_hum , df_pre.iloc[:, 1:], df_tem.iloc[:, 1:], df_wea.iloc[:, 1:], df_dir.iloc[:, 1:], df_spe.iloc[:, 1:]], axis=1)
+        return sortColumns(df_hum, df_pre, df_tem, df_wea, df_dir, df_spe)
