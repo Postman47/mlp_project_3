@@ -2,11 +2,11 @@ import pandas as pd
 import math
 import os
 
-def _get_path_to_file(file_name):
+def _get_path_to_file(data_dir ,file_path):
     '''generates path to file, needs name of wanted file and constant that decides whether
       we use it for classification set or regression set
     '''
-    return os.path.normpath(os.path.join(os.getcwd() + os.sep + 'data' + os.sep + file_name))
+    return os.path.normpath(os.path.join(data_dir, file_path))
 
 def _read_csv_data(path):
     return pd.read_csv(path)
@@ -66,13 +66,13 @@ def _process_wind_direction(df):
     #   [f"{col}_y" for col in f_xy.columns[len(df.columns):]]
     return df_1
 
-def load_data():
-    df_hum = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file('humidity.csv'))))
-    df_pre = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file('pressure.csv'))))
-    df_tem = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file('temperature.csv'))))
-    df_wea = _description_process(_read_csv_data(_get_path_to_file('weather_description.csv')))
-    df_dir = _nan_to_mean(_read_csv_data(_get_path_to_file('wind_direction.csv')))
-    df_spe = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file('wind_speed.csv'))))
+def load_data(data_dir):
+    df_hum = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'humidity.csv'))))
+    df_pre = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'pressure.csv'))))
+    df_tem = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'temperature.csv'))))
+    df_wea = _description_process(_read_csv_data(_get_path_to_file(data_dir, 'weather_description.csv')))
+    df_dir = _nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'wind_direction.csv')))
+    df_spe = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'wind_speed.csv'))))
 
     df_dir = _process_wind_direction(df_dir)
 
