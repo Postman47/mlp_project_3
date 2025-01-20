@@ -3,7 +3,7 @@ import torch.nn as nn
 
 class MLP(nn.Module):
     def __init__(self,
-        dim_in=1, dim_out=1, dim_hidden=256, hidden_depth=2, last_act=None, act='relu'):
+        dim_in=1, dim_out=1, dim_hidden=256, hidden_depth=2, batch_norm=False, last_act=None, act='relu'):
         super(MLP, self).__init__()
         self.encoding, self.network = None, None
 
@@ -14,6 +14,7 @@ class MLP(nn.Module):
             for i in range(hidden_depth):
                 if i==0:
                     w_in, w_out = dim_in, dim_hidden
+                    layers.append(nn.Flatten())
                 else:
                     w_in, w_out = dim_hidden, dim_hidden
 
@@ -21,6 +22,8 @@ class MLP(nn.Module):
                     # fill with additional cases if needed
                     case _:
                         layers.append(nn.Linear(in_features=w_in, out_features=w_out))
+                        if batch_norm:
+                            layers.append(nn.BatchNorm1d(w_out))
                         layers.append(nn.ReLU())
 
             # Add last layer with its activation
