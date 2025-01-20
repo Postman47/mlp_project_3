@@ -1,2 +1,3 @@
 kagglehub
-shutil
+torch
+absl-py
