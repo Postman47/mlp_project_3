@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import math
 import os
 
@@ -49,6 +50,25 @@ def _wind_direction_toxy(windDirection):
 
     return pd.Series([x, y])
 
+def _encode_datetime(df):
+    
+    df['year'] = df['datetime'].dt.year
+    df['month'] = df['datetime'].dt.month
+    df['day'] = df['datetime'].dt.day
+    df['hour'] = df['datetime'].dt.hour
+    df['minute'] = df['datetime'].dt.minute
+    df['day_of_week'] = df['datetime'].dt.dayofweek
+
+    # Cyclic encoding
+    df['hour_sin'] = np.sin(2 * np.pi * df['hour'] / 24)
+    df['hour_cos'] = np.cos(2 * np.pi * df['hour'] / 24)
+
+    # Time delta
+    reference_date = df['datetime'][0]
+    df['days_since_ref'] = (df['datetime'] - reference_date).dt.total_seconds() / (24 * 3600)
+
+    return df
+
 def _process_wind_direction(df):
     xy_components = df.iloc[:, 1:].apply(lambda col: col.map(_wind_direction_toxy))
     df_1 = pd.concat([df.iloc[:, 0], xy_components], axis=1)
@@ -67,18 +87,24 @@ def _process_wind_direction(df):
     return df_1
 
 def load_data(data_dir):
+    df_city_attr = _read_csv_data(_get_path_to_file(data_dir, 'city_attributes.csv'))
+    ids = _get_column_data(df_city_attr, 0)
+    coordinates = df_city_attr.iloc[:, 2:] 
+
     df_hum = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'humidity.csv'))))
     df_pre = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'pressure.csv'))))
     df_tem = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'temperature.csv'))))
     df_wea = _description_process(_read_csv_data(_get_path_to_file(data_dir, 'weather_description.csv')))
-    df_dir = _nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'wind_direction.csv')))
+    df_dir = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'wind_direction.csv'))))
     df_spe = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'wind_speed.csv'))))
 
-    df_dir = _process_wind_direction(df_dir)
+    datetimes = pd.DataFrame(columns=['datetime'])
+    datetimes['datetime'] = pd.to_datetime(df_hum['datetime'])
+    datetimes = _encode_datetime(datetimes)
 
-    return _sort_columns(df_hum, df_pre, df_tem, df_wea, df_dir, df_spe)
+    return ids, coordinates, datetimes, df_hum, df_pre, df_tem, df_wea, df_dir, df_spe
 
 if __name__ == '__main__':
-    print(load_data())
+    print(load_data('./data'))
 
 
