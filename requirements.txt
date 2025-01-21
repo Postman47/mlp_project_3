@@ -1,3 +1,5 @@
 kagglehub
+pandas
 torch
+tensorboard
 absl-py
