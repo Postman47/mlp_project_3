@@ -20,8 +20,8 @@ class WeatherDataset(Dataset):
     def __getitem__(self, idx):
         city_id = idx // self.data_length
         temp_id = idx % self.data_length
-        to_full_day = 24 - (temp_id % 24)
-        data_id = (temp_id + to_full_day) + (3*24)
+        to_full_day = temp_id % 24
+        data_id = (temp_id - to_full_day) + (3*24)
 
         data_triplet = []
         for i in range(1, 73):
@@ -53,8 +53,8 @@ class WeatherDataset(Dataset):
         denormalized_wind_speed = max_wind_speed*50 # max_wind = 50.0 min_speed = 0.0
 
         if denormalized_wind_speed >= 6:
-            classification = [1,0]
+            classification = [0, 1]
         else:
-            classification = [0,1]
+            classification = [1, 0]
 
         return torch.Tensor(data_triplet), torch.Tensor((avg_temperature, *classification)).unsqueeze(0)# X, Y
