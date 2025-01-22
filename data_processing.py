@@ -22,7 +22,9 @@ def _nan_to_mean(df):
 
 def _normalize_data(df):
     firstColumn = df.iloc[:, 0]
-    df_normalized = (df.iloc[:, 1:] - df.iloc[:, 1:].min()) / (df.iloc[:, 1:].max() - df.iloc[:, 1:].min())
+    max = df.iloc[:, 1:].values.max()
+    min = df.iloc[:, 1:].values.min()
+    df_normalized = (df.iloc[:, 1:] - min) / (max - min)
     return pd.concat([firstColumn, df_normalized], axis=1)
 
 def _description_process(df):
