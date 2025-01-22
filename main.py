@@ -32,7 +32,7 @@ def main(argv):
 
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
-    model = MLP(dim_in=1224, dim_out=17, hidden_depth=5, batch_norm=True).to(device)
+    model = MLP(dim_in=1224, dim_out=3, hidden_depth=5, batch_norm=True).to(device)
 
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
