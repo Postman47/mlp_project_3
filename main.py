@@ -28,11 +28,11 @@ def main(argv):
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     writer = SummaryWriter('runs/weather_trainer_{}'.format(timestamp))
 
-    train_dataset, test_dataset = torch.utils.data.random_split(WeatherDataset(), [0.03, 0.97])
-    test_dataset = train_dataset
+    train_dataset, test_dataset = torch.utils.data.random_split(WeatherDataset(), [0.80, 0.20])
+
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
-    model = MLP(dim_in=51, dim_out=17, hidden_depth=5, batch_norm=True).to(device)
+    model = MLP(dim_in=1224, dim_out=17, hidden_depth=5, batch_norm=True).to(device)
 
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)

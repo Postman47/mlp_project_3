@@ -9,7 +9,7 @@ class WeatherDataset(Dataset):
         
         print(self.datetimes)
 
-        self.data_length = len(self.datetimes) - 4
+        self.data_length = len(self.datetimes) - (4*24)
         self.num_cities = len(self.ids)        
 
         self.device = torch.device('cuda'if torch.cuda.is_available() else 'cpu')
@@ -19,10 +19,12 @@ class WeatherDataset(Dataset):
 
     def __getitem__(self, idx):
         city_id = idx // self.data_length
-        data_id = (idx % self.data_length) + 3
+        temp_id = idx % self.data_length
+        to_full_day = 24 - (temp_id % 24)
+        data_id = (temp_id + to_full_day) + (3*24)
 
         data_triplet = []
-        for i in range(1, 4):
+        for i in range(1, 73):
             city = self.ids[city_id]
             coords = self.coordinates['Latitude'][city_id], self.coordinates['Longitude'][city_id]
             datetime = self.datetimes.iloc[data_id - i, 1:].values
@@ -40,4 +42,4 @@ class WeatherDataset(Dataset):
         for df in self.data:
             data.append(df[city][data_id + 1])
         
-        return torch.Tensor(data_triplet), torch.Tensor((*coords, *datetime, *data)).unsqueeze(0) # X, Y
+        return torch.Tensor(data_triplet), torch.Tensor((*coords, *datetime, *data)).unsqueeze(0)# X, Y

@@ -86,17 +86,26 @@ def _process_wind_direction(df):
     #   [f"{col}_y" for col in f_xy.columns[len(df.columns):]]
     return df_1
 
+def _remove_incomplete_days(df):
+    df['datetime'] = pd.to_datetime(df['datetime'])
+    df['date'] = df['datetime'].dt.date
+    day_counts = df['date'].value_counts()
+    complete_days = day_counts[day_counts == 24].index
+    filtered_df = df[df['date'].isin(complete_days)].drop(columns=['date'])
+    filtered_df.reset_index(drop=True, inplace=True)
+    return filtered_df
+
 def load_data(data_dir):
     df_city_attr = _read_csv_data(_get_path_to_file(data_dir, 'city_attributes.csv'))
     ids = _get_column_data(df_city_attr, 0)
-    coordinates = df_city_attr.iloc[:, 2:] 
+    coordinates = df_city_attr.iloc[:, 2:]
 
-    df_hum = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'humidity.csv'))))
-    df_pre = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'pressure.csv'))))
-    df_tem = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'temperature.csv'))))
-    df_wea = _description_process(_read_csv_data(_get_path_to_file(data_dir, 'weather_description.csv')))
-    df_dir = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'wind_direction.csv'))))
-    df_spe = _normalize_data(_nan_to_mean(_read_csv_data(_get_path_to_file(data_dir, 'wind_speed.csv'))))
+    df_hum = _normalize_data(_nan_to_mean(_remove_incomplete_days(_read_csv_data(_get_path_to_file(data_dir, 'humidity.csv')))))
+    df_pre = _normalize_data(_nan_to_mean(_remove_incomplete_days(_read_csv_data(_get_path_to_file(data_dir, 'pressure.csv')))))
+    df_tem = _normalize_data(_nan_to_mean(_remove_incomplete_days(_read_csv_data(_get_path_to_file(data_dir, 'temperature.csv')))))
+    df_wea = _description_process(_remove_incomplete_days(_read_csv_data(_get_path_to_file(data_dir, 'weather_description.csv'))))
+    df_dir = _normalize_data(_nan_to_mean(_remove_incomplete_days(_read_csv_data(_get_path_to_file(data_dir, 'wind_direction.csv')))))
+    df_spe = _normalize_data(_nan_to_mean(_remove_incomplete_days(_read_csv_data(_get_path_to_file(data_dir, 'wind_speed.csv')))))
 
     datetimes = pd.DataFrame(columns=['datetime'])
     datetimes['datetime'] = pd.to_datetime(df_hum['datetime'])
