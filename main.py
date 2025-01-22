@@ -10,6 +10,7 @@ from absl import app
 from datetime import datetime
 import numpy as np
 import random
+from customMSELoss import CustomMSELoss
 
 def main(argv):
     del argv
@@ -34,7 +35,8 @@ def main(argv):
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
     model = MLP(dim_in=1224, dim_out=3, hidden_depth=5, batch_norm=True).to(device)
 
-    loss_fn = torch.nn.MSELoss()
+    regression_loss_fn = CustomMSELoss()
+    classification_loss_fn = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
     size = len(train_dataset)
@@ -47,8 +49,10 @@ def main(argv):
         for batch, (X, y) in enumerate(train_dataloader):
             optimizer.zero_grad()
 
-            pred = model(X.to(device)).unsqueeze(1)
-            loss = loss_fn(pred, y.to(device))
+            regression_pred, classification_pred = model(X.to(device))
+            regression_loss = regression_loss_fn(regression_pred, y.to(device)[:, :, 0])
+            classification_loss = classification_loss_fn(classification_pred, y.to(device)[:, :, 1:].squeeze(1))
+            loss = regression_loss + classification_loss
 
             loss.backward()
             optimizer.step()
@@ -68,8 +72,10 @@ def main(argv):
         with torch.no_grad():
             for batch, vdata in enumerate(test_dataloader):
                 vinputs, vlabels = vdata
-                voutputs = model(vinputs.to(device)).unsqueeze(1)
-                vloss = loss_fn(voutputs, vlabels.to(device))
+                regression_voutputs, classification_voutputs = model(vinputs.to(device))
+                regression_vloss = regression_loss_fn(regression_voutputs, vlabels.to(device)[:, :, 0])
+                classification_vloss = classification_loss_fn(classification_voutputs, vlabels.to(device)[:, :, 1:].squeeze(1))
+                vloss = regression_vloss + classification_vloss
                 running_vloss += vloss
 
         avg_vloss = running_vloss / (batch + 1)
