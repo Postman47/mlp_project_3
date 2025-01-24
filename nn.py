@@ -38,4 +38,7 @@ class MLP(nn.Module):
             self.model = nn.Sequential(*layers)
 
     def forward(self, x):
-        return self.model(x)
+        output = self.model(x)
+        regression_output = output[:,0].unsqueeze(1)
+        classification_output = output[:,1:]
+        return regression_output, classification_output
