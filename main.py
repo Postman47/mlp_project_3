@@ -33,7 +33,7 @@ def main(argv):
 
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
-    model = MLP(dim_in=1224, dim_out=3, hidden_depth=5, batch_norm=True).to(device)
+    model = MLP(dim_in=1224, dim_out=3, hidden_depth=3, batch_norm=True, dim_hidden=64).to(device)
 
     regression_loss_fn = CustomMSELoss()
     classification_loss_fn = torch.nn.CrossEntropyLoss()
